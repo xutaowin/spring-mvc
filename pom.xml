@@ -421,5 +421,5 @@
       </plugin>
     </plugins>
   </build>
-  <!--modify springmvc3 dev-->
+  <!--modify springmvc4 master-->
 </project>
