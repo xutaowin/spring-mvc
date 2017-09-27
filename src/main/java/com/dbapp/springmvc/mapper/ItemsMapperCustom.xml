@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dbapp.springmvc.mapper.ItemsMapperCustom">
+  <!-- 定义商品查询sql片段，就是商品的查询条件-->
+  <sql id="query_items_where">
+    <!--使用动态的sql，通过if判断，满足条件的进行sql拼接-->
+    <!--商品查询条件通过ItemsQueryVo包装对象中的ItemsCustom属性所得-->
+    <if test="itemsCustom!=null">
+      <if test="itemsCustom.name!=null and itemsCustom.name!=''">
+        items.name like '%${itemsCustom.name}%'
+      </if>
+    </if>
+  </sql>
+  <!--商品列表查询-->
+  <!--parameterType 传入了包装对象（包装了查询条件）-->
+  <!--resultType 建议使用扩展对象-->
+  <select id="queryItemsList" parameterType="com.dbapp.springmvc.pojo.ItemsQueryVo"
+   resultType="com.dbapp.springmvc.pojo.ItemsCustom">
+      select * from items
+      <where>
+        <include refid="query_items_where"/>
+      </where>
+  </select>
+
+    <select id="queryItemsList2" resultType="com.dbapp.springmvc.pojo.ItemsCustom">
+        select * from items
+    </select>
+    <insert id="insert" parameterType="com.dbapp.springmvc.pojo.Items">
+        INSERT INTO items(name,price) values(#{name,jdbcType=VARCHAR}, #{price,jdbcType=REAL})
+    </insert>
+</mapper>

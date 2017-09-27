@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/mvc
+    http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <!--实际开发中建议采用主键扫描-->
+    <context:component-scan base-package="com.dbapp"/>
+    <!--
+    使用mvc的注解驱动(annotation-driven)代替上面的处理器映射器和处理器适配器配置
+    默认加载了很多参数绑定的方法，比如json转换解析器就默认加载了 <实际开发中使用>
+    -->
+    <mvc:annotation-driven conversion-service="conversionService" validator="validator">
+        <!-- 处理responseBody 里面日期类型 -->
+       <mvc:message-converters register-defaults="false">
+        <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+            <property name="objectMapper">
+                <bean class="com.fasterxml.jackson.databind.ObjectMapper">
+                    <property name="dateFormat">
+                        <bean class="java.text.SimpleDateFormat">
+                            <constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" />
+                        </bean>
+                    </property>
+                </bean>
+            </property>
+        </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    <!--自定义参数绑定-->
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <!--转换器-->
+        <property name="converters">
+            <set>
+                <bean class="com.dbapp.springmvc.converter.ItemsDateConverter"/>
+            </set>
+        </property>
+    </bean>
+    <!--视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/views/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--校验器-->
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+        <!--hibernate 校验器-->
+        <property name="providerClass" value="org.hibernate.validator.HibernateValidator"/>
+        <!--指定校验使用的资源文件，默认使用classpath下的ValidationMessage.properties-->
+        <property name="validationMessageSource" ref="messageSource"/>
+    </bean>
+    <!--校验错误信息配置文件-->
+    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <!--资源文件名-->
+        <property name="basenames">
+            <list>
+                <value>classpath:CustomValidationMessages</value>
+            </list>
+        </property>
+        <!--资源文件编码格式-->
+        <property name="fileEncodings" value="UTF-8"/>
+        <!--对资源文件内容缓存时间，单位秒-->
+        <property name="cacheSeconds" value="120"/>
+    </bean>
+    <!--全局异常处理器 只要实现了HandlerExceptionResolver接口就是异常处理器-->
+    <bean class="com.dbapp.springmvc.exception.CustomExceptionResolver"/>
+
+    <!--文件上传-->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="UTF-8"/>
+        <property name="maxUploadSize" value="10048576"/>
+        <property name="maxInMemorySize" value="4096"/>
+    </bean>
+
+    <!--注解适配器 配置json转换-->
+    <!--如果使用 <mvc:annotation-driven/> 则不用定义上面内容-->
+    <!--<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
+            </list>
+        </property>
+    </bean>-->
+    <!-- 定义无Controller的path<->view直接映射 比如静态资源文件解析:包含js，css，img -->
+    <!--<mvc:view-controller path="/" view-name="redirect:/index"/>-->
+    <mvc:resources location="/static/" mapping="/static/**"/>
+    <!--<mvc:resources location="/css/" mapping="/css/**"/>
+    <mvc:resources location="/img/" mapping="/img/**"/>-->
+
+    <!--拦截器-->
+    <mvc:interceptors>
+        <!--多个拦截器，顺序执行-->
+        <mvc:interceptor>
+            <!--/**表示所有的url包括子url路径-->
+            <mvc:mapping path="/**"/>
+            <bean class="com.dbapp.springmvc.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <!--/**表示所有的url包括子url路径-->
+            <mvc:mapping path="/**"/>
+            <bean class="com.dbapp.springmvc.interceptor.HandlerInterceptor1"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <!--/**表示所有的url包括子url路径-->
+            <mvc:mapping path="/**"/>
+            <bean class="com.dbapp.springmvc.interceptor.HandlerInterceptor2"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+</beans>
