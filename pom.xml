@@ -421,5 +421,5 @@
       </plugin>
     </plugins>
   </build>
-  <!--modify springmvc2-->
+  <!--modify springmvc2 dev-->
 </project>
