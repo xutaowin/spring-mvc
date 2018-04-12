@@ -39,7 +39,7 @@ public class ItemsController1 implements Controller {
         //相对于request的setAttribute 在jsp页面中通过itemsList取数据
         modelAndView.addObject("itemsList",itemsList);
         //定义视图
-        modelAndView.setViewName("/WEB-INF/views/items/itemsList.jsp");
+        modelAndView.setViewName("items/itemsList");
         return modelAndView;
     }
 }

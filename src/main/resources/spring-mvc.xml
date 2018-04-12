@@ -16,6 +16,7 @@
     使用mvc的注解驱动(annotation-driven)代替上面的处理器映射器和处理器适配器配置
     默认加载了很多参数绑定的方法，比如json转换解析器就默认加载了 <实际开发中使用>
     -->
+    <!--<mvc:annotation-driven/>-->
     <mvc:annotation-driven conversion-service="conversionService" validator="validator">
         <!-- 处理responseBody 里面日期类型 -->
        <mvc:message-converters register-defaults="false">
@@ -31,6 +32,9 @@
             </property>
         </bean>
         </mvc:message-converters>
+        <mvc:argument-resolvers>
+            <bean class="com.dbapp.springmvc.annotation.FormObjArgumentResolver"/>
+        </mvc:argument-resolvers>
     </mvc:annotation-driven>
     <!--自定义参数绑定-->
     <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
@@ -97,11 +101,11 @@
     <!--拦截器-->
     <mvc:interceptors>
         <!--多个拦截器，顺序执行-->
-        <mvc:interceptor>
-            <!--/**表示所有的url包括子url路径-->
+        <!--<mvc:interceptor>
+            &lt;!&ndash;/**表示所有的url包括子url路径&ndash;&gt;
             <mvc:mapping path="/**"/>
             <bean class="com.dbapp.springmvc.interceptor.LoginInterceptor"/>
-        </mvc:interceptor>
+        </mvc:interceptor>-->
         <mvc:interceptor>
             <!--/**表示所有的url包括子url路径-->
             <mvc:mapping path="/**"/>

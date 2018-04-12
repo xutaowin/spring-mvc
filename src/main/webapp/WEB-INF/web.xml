@@ -26,7 +26,7 @@
       如果不配置contextConfigLocation，默认加载是/WEB-INF/servlet名称-servlet.xml
       (如：springmvc-servlet.xml)-->
       <param-name>contextConfigLocation</param-name>
-      <param-value>classpath:spring-mvc.xml</param-value>
+      <param-value>classpath:spring-easy-mvc.xml</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
